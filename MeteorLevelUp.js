@@ -1,18 +1,35 @@
-if (Meteor.isClient) {
-  // counter starts at 0
-  Session.setDefault('counter', 0);
+Resolutions = new Mongo.Collection('resolutions');
 
-  Template.hello.helpers({
-    counter: function () {
-      return Session.get('counter');
+if (Meteor.isClient) {
+  Template.body.helpers({
+    resolutions: function(){
+      return Resolutions.find();
     }
   });
 
-  Template.hello.events({
-    'click button': function () {
-      // increment the counter when button is clicked
-      Session.set('counter', Session.get('counter') + 1);
-    }
+  Template.body.events({
+  	'submit .new-resolution': function(event){
+  		var title = event.target.title.value;
+
+  		Resolutions.insert({
+  			title : title,
+  			createdAt: new Date()
+  		});
+
+  		event.target.title.value = "";
+
+  		return false;
+  	}
+  });
+
+  Template.resolution.events({
+  	'click .toggle-checked': function(){
+  		Resolutions.update(this._id, {$set: {checked: !this.checked}})
+  	},
+
+  	'click .delete': function(){
+  		Resolutions.remove(this._id);
+  	}
   });
 }
 
